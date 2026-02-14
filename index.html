@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Valentine Message</title>
+    <style>
+        :root {
+            --primary-pink: #ffadad;
+            --dark-pink: #ff4d6d;
+            --envelope-white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #ffe5ec;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* --- ซองจดหมาย --- */
+        #envelope-container {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            background: var(--envelope-white);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+
+        #envelope-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-top: 100px solid #f0f0f0;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .heart-seal {
+            position: absolute;
+            font-size: 50px;
+            color: #ff4d6d;
+            z-index: 101;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* --- หน้าใส่รหัส --- */
+        #password-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 240, 243, 0.98);
+            z-index: 200;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        input {
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid var(--primary-pink);
+            border-radius: 15px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: var(--dark-pink);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* --- หน้าหลักหลังปลดล็อค --- */
+        #main-content { display: none; text-align: center; z-index: 10; }
+
+        .random-quote {
+            font-size: 1.5rem;
+            color: #ff4d6d;
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 40px;
+            text-shadow: 1px 1px white;
+            animation: fadeInOut 3s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translateY(10px); }
+            20%, 80% { opacity: 1; transform: translateY(0); }
+        }
+
+        .floating-img {
+            position: absolute;
+            bottom: -150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-125vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="envelope-container" onclick="showPasswordScreen()">
+        <div class="heart-seal">❤️</div>
+        <p style="position: absolute; bottom: 10px; color: #888; font-size: 0.8rem;">Click to Open</p>
+    </div>
+
+    <div id="password-screen">
+        <h2 style="color: #ff4d6d;">ใส่รหัสผ่านวันสำคัญของเรา 🔐</h2>
+        <input type="password" id="passInput" placeholder="ววดดปปปป">
+        <button onclick="checkPassword()">เปิดดูความในใจ</button>
+        <p id="error-msg" style="color: red; display: none; margin-top: 10px;">ลองใหม่อีกทีนะที่รัก!</p>
+    </div>
+
+    <div id="main-content">
+        <h1 style="color: #ff4d6d; font-size: 3rem;">Happy Valentine's Day ❤️</h1>
+        <div id="quote-display" class="random-quote"></div>
+    </div>
+
+    <script>
+        const photoUrls = ['fan1.jpeg', 'fan2.jpeg', 'fan3.jpeg'];
+
+        // รายการข้อความสุ่ม (คุณสามารถเพิ่มหรือแก้ตรงนี้ได้เลย)
+        const loveQuotes = [
+            "รักแฟนที่สุดในโลกเลย!",
+            "ขอบคุณที่อยู่ข้างกันนะ",
+            "เป็นแฟนที่น่ารักแบบนี้ตลอดไปนะ",
+            "วาเลนไทน์ปีนี้มีความสุขที่สุดเลย",
+            "รอยยิ้มของเด็กดื้อคือความสุขของนี่",
+            "อยากมีแฟนในทุกๆ ปีเลยนะ",
+            "วันนี้แฟนน่ารักจัง (จริงๆ ก็น่ารักทุกวันแหละ!)"
+        ];
+
+        function showPasswordScreen() {
+            document.getElementById('envelope-container').style.display = 'none';
+            document.getElementById('password-screen').style.display = 'flex';
+            document.getElementById('passInput').focus();
+        }
+
+        function checkPassword() {
+            const pass = document.getElementById('passInput').value;
+            if (pass === '14022026') {
+                unlockSecret();
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
+        function unlockSecret() {
+            document.getElementById('password-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            
+            // เริ่มสุ่มข้อความ
+            changeQuote();
+            setInterval(changeQuote, 3000); // เปลี่ยนทุก 3 วินาที
+
+            // เริ่มรูปแฟนลอย
+            setInterval(createFloatingPhoto, 600);
+        }
+
+        function changeQuote() {
+            const quoteElem = document.getElementById('quote-display');
+            const randomIdx = Math.floor(Math.random() * loveQuotes.length);
+            quoteElem.innerText = loveQuotes[randomIdx];
+        }
+
+        function createFloatingPhoto() {
+            const img = document.createElement('img');
+            img.src = photoUrls[Math.floor(Math.random() * photoUrls.length)];
+            img.className = 'floating-img';
+            const size = Math.random() * 70 + 80;
+            img.style.width = size + 'px';
+            img.style.height = size + 'px';
+            img.style.left = Math.random() * 95 + 'vw';
+            const duration = Math.random() * 4 + 4;
+            img.style.animationDuration = duration + 's';
+            document.body.appendChild(img);
+            setTimeout(() => { img.remove(); }, duration * 1000);
+        }
+    </script>
+</body>
+</html>
